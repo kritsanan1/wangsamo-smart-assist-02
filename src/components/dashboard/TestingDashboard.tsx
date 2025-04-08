@@ -12,7 +12,7 @@ import {
   Clock,
   FileSearch,
   Brain,
-  Speed,
+  Gauge,
 } from 'lucide-react';
 
 interface TestCase {
@@ -185,7 +185,7 @@ const TestingDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
-              <Speed className="h-4 w-4 mr-2 text-wangsammo-orange" />
+              <Gauge className="h-4 w-4 mr-2 text-wangsammo-orange" />
               คะแนนเฉลี่ย
             </CardTitle>
           </CardHeader>
@@ -215,7 +215,7 @@ const TestingDashboard = () => {
             ทดสอบระบบ AI
           </TabsTrigger>
           <TabsTrigger value="non_functional">
-            <Speed className="h-4 w-4 mr-2" />
+            <Gauge className="h-4 w-4 mr-2" />
             ทดสอบที่ไม่ใช่ฟังก์ชัน
           </TabsTrigger>
         </TabsList>
