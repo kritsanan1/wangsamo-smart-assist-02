@@ -1,65 +1,44 @@
 
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { MapPin } from 'lucide-react';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { toast } = useToast();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleHelpClick = () => {
+    toast({
+      title: "ศูนย์ช่วยเหลือ",
+      description: "ติดต่อเจ้าหน้าที่ได้ที่เบอร์ 042-387105",
+    });
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white border-b shadow-sm sticky top-0 z-10">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <img 
-                src="/lovable-uploads/a6f236b1-baea-4e08-9184-b2b786ccdb0a.png" 
-                alt="Smart Wangsammo Logo" 
-                className="h-8 w-auto" 
-              />
-              <span className="ml-2 text-xl font-bold text-wangsammo-dark">Smart Wangsammo</span>
-            </Link>
-          </div>
+        <div className="flex justify-between items-center py-4">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="font-bold text-xl text-wangsammo-orange">Smart Wangsammo</span>
+          </Link>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-4">
-            <Link to="/" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange">หน้าหลัก</Link>
-            <Link to="/report" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange">แจ้งเหตุ</Link>
-            <Link to="/track" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange">ติดตามเรื่อง</Link>
-            <Link to="/dashboard" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange">แดชบอร์ด</Link>
-            <Link to="/about" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange">เกี่ยวกับเรา</Link>
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/" className="text-gray-700 hover:text-wangsammo-orange">หน้าหลัก</Link>
+            <Link to="/report" className="text-gray-700 hover:text-wangsammo-orange">แจ้งเหตุ</Link>
+            <Link to="/track" className="text-gray-700 hover:text-wangsammo-orange">ติดตามเรื่อง</Link>
+            <Link to="/map" className="text-gray-700 hover:text-wangsammo-orange flex items-center gap-1">
+              <MapPin size={16} />
+              แผนที่
+            </Link>
+            <Link to="/dashboard" className="text-gray-700 hover:text-wangsammo-orange">แดชบอร์ด</Link>
+            <Link to="/about" className="text-gray-700 hover:text-wangsammo-orange">เกี่ยวกับเรา</Link>
           </nav>
           
-          <div className="hidden md:flex">
-            <Button className="bg-wangsammo-orange hover:bg-wangsammo-orange/90 text-white">เข้าสู่ระบบ</Button>
-          </div>
-          
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button onClick={toggleMenu} className="text-wangsammo-dark">
-              {isMenuOpen ? <X /> : <Menu />}
-            </button>
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" onClick={handleHelpClick}>ช่วยเหลือ</Button>
+            <Button className="bg-wangsammo-orange hover:bg-wangsammo-orange/90">เข้าสู่ระบบ</Button>
           </div>
         </div>
-        
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-2 animate-fade-in">
-            <nav className="flex flex-col space-y-2">
-              <Link to="/" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange" onClick={() => setIsMenuOpen(false)}>หน้าหลัก</Link>
-              <Link to="/report" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange" onClick={() => setIsMenuOpen(false)}>แจ้งเหตุ</Link>
-              <Link to="/track" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange" onClick={() => setIsMenuOpen(false)}>ติดตามเรื่อง</Link>
-              <Link to="/dashboard" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange" onClick={() => setIsMenuOpen(false)}>แดชบอร์ด</Link>
-              <Link to="/about" className="px-3 py-2 text-wangsammo-dark hover:text-wangsammo-orange" onClick={() => setIsMenuOpen(false)}>เกี่ยวกับเรา</Link>
-              <Button className="bg-wangsammo-orange hover:bg-wangsammo-orange/90 text-white w-full mt-2">เข้าสู่ระบบ</Button>
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
