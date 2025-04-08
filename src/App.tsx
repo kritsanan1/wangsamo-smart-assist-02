@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import MapView from "./pages/MapView";
+import Contact from "./pages/Contact";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="track" element={<Track />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="map" element={<MapView />} />
+              <Route path="contact" element={<Contact />} />
               <Route path="about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Route>
