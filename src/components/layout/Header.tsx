@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone, Palette } from 'lucide-react';
 
 const Header = () => {
   const { toast } = useToast();
@@ -36,6 +36,10 @@ const Header = () => {
             </Link>
             <Link to="/dashboard" className="text-gray-700 hover:text-wangsammo-orange">แดชบอร์ด</Link>
             <Link to="/about" className="text-gray-700 hover:text-wangsammo-orange">เกี่ยวกับเรา</Link>
+            <Link to="/customize" className="text-gray-700 hover:text-wangsammo-orange flex items-center gap-1">
+              <Palette size={16} />
+              ปรับแต่ง
+            </Link>
           </nav>
           
           <div className="flex items-center space-x-3">

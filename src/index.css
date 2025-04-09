@@ -43,6 +43,24 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Color palette */
+    --wangsammo-orange: 25 100% 58%;
+    --wangsammo-teal: 173 59% 49%;
+    --wangsammo-dark: 222 23% 14%;
+    --wangsammo-light: 210 40% 98%;
+    --wangsammo-blue: 210 75% 50%;
+    
+    /* Additional colors for themes */
+    --slate-400: 210 20% 60%;
+    --slate-600: 210 20% 40%;
+    --blue-500: 210 100% 50%;
+    --rose-500: 350 100% 60%;
+    --violet-500: 270 100% 60%;
+    --amber-500: 40 100% 50%;
+    --indigo-600: 240 80% 50%;
+    --gray-700: 220 10% 40%;
+    --emerald-500: 160 100% 40%;
   }
 
   .dark {
@@ -116,5 +134,18 @@
   
   .btn-secondary {
     @apply bg-wangsammo-teal text-white hover:bg-wangsammo-teal/90;
+  }
+
+  /* Theme utility classes */
+  .theme-primary {
+    @apply bg-[color:var(--theme-primary-color)];
+  }
+  
+  .theme-secondary {
+    @apply bg-[color:var(--theme-secondary-color)];
+  }
+  
+  .theme-accent {
+    @apply bg-[color:var(--theme-accent-color)];
   }
 }
