@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 // Define the theme type
 interface Theme {
@@ -53,6 +53,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// Fix the ThemeProvider component definition - make sure it's a proper React function component
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeName, setThemeName] = useState("default");
   const [customTheme, setCustomTheme] = useState<Theme>(themes.default);
@@ -96,4 +97,3 @@ export const useTheme = () => {
   }
   return context;
 };
-
