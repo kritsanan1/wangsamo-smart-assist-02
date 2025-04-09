@@ -1,54 +1,30 @@
 
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { MapPin, Phone, Palette } from 'lucide-react';
+import React from 'react';
+import NavBar from './NavBar';
+
+// Sample navigation links - these should match the structure in Dashboard.tsx
+const navLinks = [
+  { text: "หน้าหลัก", href: "/" },
+  { text: "แจ้งเรื่อง", href: "/report" },
+  { text: "ติดตามเรื่อง", href: "/track" },
+  { text: "แผนที่", href: "/map" },
+  { text: "ติดต่อหน่วยงาน", href: "/contact" },
+  { text: "แดชบอร์ด", href: "/dashboard" },
+  { text: "เกี่ยวกับเรา", href: "/about" },
+  { text: "ปรับแต่ง", href: "/customize" },
+];
 
 const Header = () => {
-  const { toast } = useToast();
-
-  const handleHelpClick = () => {
-    toast({
-      title: "ศูนย์ช่วยเหลือ",
-      description: "ติดต่อเจ้าหน้าที่ได้ที่เบอร์ 042-387105",
-    });
+  const handleLogin = () => {
+    // We'll forward to the dashboard page as an example
+    window.location.href = '/dashboard';
   };
 
   return (
-    <header className="bg-white border-b shadow-sm sticky top-0 z-10">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="font-bold text-xl text-wangsammo-orange">Smart Wangsammo</span>
-          </Link>
-          
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-wangsammo-orange">หน้าหลัก</Link>
-            <Link to="/report" className="text-gray-700 hover:text-wangsammo-orange">แจ้งเหตุ</Link>
-            <Link to="/track" className="text-gray-700 hover:text-wangsammo-orange">ติดตามเรื่อง</Link>
-            <Link to="/map" className="text-gray-700 hover:text-wangsammo-orange flex items-center gap-1">
-              <MapPin size={16} />
-              แผนที่
-            </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-wangsammo-orange flex items-center gap-1">
-              <Phone size={16} />
-              ติดต่อหน่วยงาน
-            </Link>
-            <Link to="/dashboard" className="text-gray-700 hover:text-wangsammo-orange">แดชบอร์ด</Link>
-            <Link to="/about" className="text-gray-700 hover:text-wangsammo-orange">เกี่ยวกับเรา</Link>
-            <Link to="/customize" className="text-gray-700 hover:text-wangsammo-orange flex items-center gap-1">
-              <Palette size={16} />
-              ปรับแต่ง
-            </Link>
-          </nav>
-          
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" onClick={handleHelpClick}>ช่วยเหลือ</Button>
-            <Button className="bg-wangsammo-orange hover:bg-wangsammo-orange/90">เข้าสู่ระบบ</Button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <NavBar 
+      links={navLinks}
+      login={{ onLogin: handleLogin }}
+    />
   );
 };
 
