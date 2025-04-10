@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import ReportsByCategory from "@/components/dashboard/ReportsByCategory";
@@ -8,8 +7,9 @@ import UserDashboard from "@/components/dashboard/UserDashboard";
 import FanPagePostUpdate from "@/components/social/FanPagePostUpdate";
 import AIChatbot from "@/components/chat/AIChatbot";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileBarChart, TestTube, User, MessageSquare, UserCircle } from "lucide-react";
+import { FileBarChart, TestTube, User, MessageSquare, UserCircle, LayoutDashboard } from "lucide-react";
 import NavBar from "@/components/layout/NavBar";
+import StepNavigatorExample from "@/components/examples/StepNavigatorExample";
 
 // Sample user data
 const sampleUser = {
@@ -80,6 +80,10 @@ const Dashboard = () => {
               <TestTube className="h-4 w-4 mr-2" />
               การทดสอบและประเมินผล
             </TabsTrigger>
+            <TabsTrigger value="step-navigator" className="flex items-center">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              ตัวช่วยนำทางขั้นตอน
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="reports">
@@ -118,6 +122,13 @@ const Dashboard = () => {
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4">การทดสอบและประเมินผล AI</h2>
               <TestingDashboard />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="step-navigator">
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4">ตัวอย่าง Step Navigator</h2>
+              <StepNavigatorExample />
             </div>
           </TabsContent>
         </Tabs>
