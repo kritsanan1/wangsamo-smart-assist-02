@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBar from './NavBar';
 
 // Sample navigation links
@@ -15,7 +16,13 @@ const navLinks = [
 ];
 
 const Header = () => {
-  return <NavBar links={navLinks} />;
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+
+  return <NavBar links={navLinks} login={{ onLogin: handleLogin }} />;
 };
 
 export default Header;
