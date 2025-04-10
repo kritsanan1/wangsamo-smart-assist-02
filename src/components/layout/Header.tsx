@@ -2,7 +2,7 @@
 import React from 'react';
 import NavBar from './NavBar';
 
-// Sample navigation links - these should match the structure in Dashboard.tsx
+// Sample navigation links
 const navLinks = [
   { text: "หน้าหลัก", href: "/" },
   { text: "แจ้งเรื่อง", href: "/report" },
@@ -15,17 +15,7 @@ const navLinks = [
 ];
 
 const Header = () => {
-  const handleLogin = () => {
-    // We'll forward to the dashboard page as an example
-    window.location.href = '/dashboard';
-  };
-
-  return (
-    <NavBar 
-      links={navLinks}
-      login={{ onLogin: handleLogin }}
-    />
-  );
+  return <NavBar links={navLinks} />;
 };
 
 export default Header;

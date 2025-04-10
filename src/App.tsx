@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import ThemeWrapper from "@/components/customization/ThemeWrapper";
 import ThemeCustomizer from "@/components/customization/ThemeCustomizer";
 import LayoutCustomizer from "@/components/customization/LayoutCustomizer";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
@@ -21,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import MapView from "./pages/MapView";
 import Contact from "./pages/Contact";
 import Customize from "./pages/Customize";
+import Auth from "./pages/Auth";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -30,27 +32,30 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <ThemeWrapper>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Index />} />
-                  <Route path="report" element={<Report />} />
-                  <Route path="track" element={<Track />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="map" element={<MapView />} />
-                  <Route path="contact" element={<Contact />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="customize" element={<Customize />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-            <ThemeCustomizer />
-            <LayoutCustomizer />
-          </TooltipProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Index />} />
+                    <Route path="report" element={<Report />} />
+                    <Route path="track" element={<Track />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="map" element={<MapView />} />
+                    <Route path="contact" element={<Contact />} />
+                    <Route path="about" element={<About />} />
+                    <Route path="customize" element={<Customize />} />
+                    <Route path="auth" element={<Auth />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+              <ThemeCustomizer />
+              <LayoutCustomizer />
+            </TooltipProvider>
+          </AuthProvider>
         </ThemeWrapper>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,35 +8,51 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavLink {
   text: string;
   href: string;
 }
 
-interface UserData {
-  name: string;
-  avatar: string;
-}
-
 interface NavBarProps {
   links: NavLink[];
-  user?: UserData;
+  user?: {
+    name: string;
+    avatar: string;
+  };
   login: {
     onLogin: () => void;
   };
 }
 
-const NavBar: React.FC<NavBarProps> = ({ links, user, login }) => {
+const NavBar: React.FC<NavBarProps> = ({ links }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
+
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+  
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  // Extract user display name from email or user metadata
+  const userDisplayName = user?.email ? user.email.split('@')[0] : 'User';
+  
+  // Use user initials for avatar fallback
+  const userInitials = userDisplayName.substring(0, 2).toUpperCase();
 
   return (
     <header className="bg-white border-b shadow-sm sticky top-0 z-10">
@@ -119,17 +135,42 @@ const NavBar: React.FC<NavBarProps> = ({ links, user, login }) => {
           {/* User section / Login button */}
           <div className="flex items-center space-x-3 z-10">
             {user ? (
-              <div className="flex items-center space-x-3">
-                <span className="hidden sm:inline">{user.name}</span>
-                <Avatar>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={user.user_metadata?.avatar_url} alt={userDisplayName} />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{userDisplayName}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard">แดชบอร์ด</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">โปรไฟล์</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    className="text-red-600 cursor-pointer flex items-center"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> ออกจากระบบ
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Button onClick={login.onLogin} className="bg-wangsammo-orange hover:bg-wangsammo-orange/90">
+              <Button onClick={handleLogin} className="bg-wangsammo-orange hover:bg-wangsammo-orange/90">
                 เข้าสู่ระบบ
               </Button>
             )}
