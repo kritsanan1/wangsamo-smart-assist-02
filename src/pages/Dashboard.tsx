@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import DashboardSummary from "@/components/dashboard/DashboardSummary";
 import ReportsByCategory from "@/components/dashboard/ReportsByCategory";
 import RecentReports from "@/components/dashboard/RecentReports";
@@ -7,9 +9,18 @@ import UserDashboard from "@/components/dashboard/UserDashboard";
 import FanPagePostUpdate from "@/components/social/FanPagePostUpdate";
 import AIChatbot from "@/components/chat/AIChatbot";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileBarChart, TestTube, User, MessageSquare, UserCircle, LayoutDashboard } from "lucide-react";
+import { 
+  FileBarChart, 
+  TestTube, 
+  User, 
+  MessageSquare, 
+  UserCircle, 
+  LayoutDashboard,
+  Users
+} from "lucide-react";
 import NavBar from "@/components/layout/NavBar";
 import StepNavigatorExample from "@/components/examples/StepNavigatorExample";
+import { Button } from "@/components/ui/button";
 
 // Sample user data
 const sampleUser = {
@@ -54,6 +65,15 @@ const Dashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">แดชบอร์ด</h1>
           <p className="text-gray-600">ข้อมูลเชิงลึกเกี่ยวกับเรื่องร้องเรียนในพื้นที่อำเภอวังสามหมอ</p>
+        </div>
+        
+        <div className="mb-6">
+          <Link to="/users">
+            <Button className="flex items-center gap-2 bg-wangsammo-blue hover:bg-wangsammo-blue/90">
+              <Users className="h-4 w-4" />
+              จัดการผู้ใช้งาน
+            </Button>
+          </Link>
         </div>
         
         {isLoggedIn && (

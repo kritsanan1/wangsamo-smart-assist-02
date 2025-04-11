@@ -1,0 +1,163 @@
+
+import React from 'react';
+import { User, SortDirection } from '@/types/users';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  ChevronUp, 
+  ChevronDown, 
+  Search, 
+  Edit, 
+  Trash2, 
+  Shield, 
+  User as UserIcon 
+} from 'lucide-react';
+
+interface UserListProps {
+  users: User[];
+  searchQuery: string;
+  sortField: 'id' | 'name' | 'email';
+  sortDirection: SortDirection;
+  onSearch: (query: string) => void;
+  onSort: (field: 'id' | 'name' | 'email') => void;
+  onEdit: (user: User) => void;
+  onDelete: (userId: number) => void;
+}
+
+const UserList: React.FC<UserListProps> = ({
+  users,
+  searchQuery,
+  sortField,
+  sortDirection,
+  onSearch,
+  onSort,
+  onEdit,
+  onDelete
+}) => {
+  const getSortIcon = (field: 'id' | 'name' | 'email') => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? (
+      <ChevronUp className="ml-1 h-4 w-4" />
+    ) : (
+      <ChevronDown className="ml-1 h-4 w-4" />
+    );
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return <Shield className="h-4 w-4 text-red-500" />;
+      case 'moderator':
+        return <Shield className="h-4 w-4 text-blue-500" />;
+      default:
+        return <UserIcon className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">จัดการผู้ใช้งาน</h2>
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="ค้นหาผู้ใช้..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+      </div>
+      
+      {users.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10">
+          <UserIcon className="h-12 w-12 text-muted-foreground" />
+          <p className="mt-2 text-muted-foreground">ไม่พบผู้ใช้งาน</p>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead 
+                  className="w-20 cursor-pointer"
+                  onClick={() => onSort('id')}
+                >
+                  <div className="flex items-center">
+                    ID {getSortIcon('id')}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer"
+                  onClick={() => onSort('name')}
+                >
+                  <div className="flex items-center">
+                    ชื่อ {getSortIcon('name')}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer"
+                  onClick={() => onSort('email')}
+                >
+                  <div className="flex items-center">
+                    อีเมล {getSortIcon('email')}
+                  </div>
+                </TableHead>
+                <TableHead>บทบาท</TableHead>
+                <TableHead className="text-right">การดำเนินการ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.id}</TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      {getRoleIcon(user.role)}
+                      <span className="capitalize">
+                        {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 
+                         user.role === 'moderator' ? 'ผู้ดูแล' : 'ผู้ใช้'}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(user)}
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">แก้ไข</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onDelete(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <span className="sr-only">ลบ</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default UserList;

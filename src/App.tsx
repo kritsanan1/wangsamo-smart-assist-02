@@ -23,6 +23,7 @@ import MapView from "./pages/MapView";
 import Contact from "./pages/Contact";
 import Customize from "./pages/Customize";
 import Auth from "./pages/Auth";
+import UserManagement from "./pages/UserManagement";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
                     <Route path="about" element={<About />} />
                     <Route path="customize" element={<Customize />} />
                     <Route path="auth" element={<Auth />} />
+                    <Route path="users" element={<UserManagement />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Routes>
