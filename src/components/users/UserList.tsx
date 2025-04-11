@@ -19,8 +19,7 @@ import {
   Trash2, 
   Shield, 
   User as UserIcon,
-  Loader2,
-  MoreHorizontal
+  Loader2
 } from 'lucide-react';
 import {
   Pagination,
@@ -249,7 +248,7 @@ const UserList: React.FC<UserListProps> = ({
                   <PaginationPrevious 
                     onClick={() => onPageChange(Math.max(1, currentPage - 1))} 
                     className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                    aria-disabled={currentPage === 1}
+                    aria-disabled={currentPage === 1 ? "true" : "false"}
                   />
                 </PaginationItem>
                 
@@ -259,7 +258,7 @@ const UserList: React.FC<UserListProps> = ({
                   <PaginationNext 
                     onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))} 
                     className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                    aria-disabled={currentPage === totalPages}
+                    aria-disabled={currentPage === totalPages ? "true" : "false"}
                   />
                 </PaginationItem>
               </PaginationContent>
