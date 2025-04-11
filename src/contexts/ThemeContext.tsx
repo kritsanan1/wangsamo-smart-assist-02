@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Define the theme type
 interface Theme {
@@ -42,6 +42,20 @@ const themes = {
   },
 };
 
+// Available colors for the color picker
+export const colorOptions = [
+  { name: "วังสามหมอส้ม", value: "wangsammo-orange" },
+  { name: "วังสามหมอฟ้า", value: "wangsammo-blue" },
+  { name: "วังสามหมอเขียว", value: "wangsammo-teal" },
+  { name: "น้ำเงินเข้ม", value: "indigo-600" },
+  { name: "เขียวมรกต", value: "emerald-500" },
+  { name: "ม่วงอ่อน", value: "violet-500" },
+  { name: "แดงกุหลาบ", value: "rose-500" },
+  { name: "ส้มอำพัน", value: "amber-500" },
+  { name: "น้ำเงินฟ้า", value: "blue-500" },
+  { name: "เทา", value: "slate-600" },
+];
+
 interface ThemeContextType {
   currentTheme: Theme;
   themeName: string;
@@ -49,6 +63,11 @@ interface ThemeContextType {
   customTheme: Theme;
   updateCustomTheme: (theme: Partial<Theme>) => void;
   applyCustomTheme: () => void;
+  // New properties for dark mode
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+  // New property for primary color
+  setPrimaryColor: (color: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -57,6 +76,37 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeName, setThemeName] = useState("default");
   const [customTheme, setCustomTheme] = useState<Theme>(themes.default);
+  // Add dark mode state
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Check if dark mode is stored in local storage on initial load
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode) {
+      setDarkMode(savedDarkMode === "true");
+    }
+  }, []);
+
+  // Apply dark mode class to document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("darkMode", darkMode.toString());
+  }, [darkMode]);
+
+  // Toggle dark mode function
+  const toggleDarkMode = () => {
+    setDarkMode(prevMode => !prevMode);
+  };
+
+  // Set primary color function
+  const setPrimaryColor = (color: string) => {
+    updateCustomTheme({ primaryColor: color });
+    setThemeName("custom");
+  };
 
   // Get the current theme object based on theme name
   const currentTheme = themeName === "custom" ? customTheme : themes[themeName as keyof typeof themes];
@@ -82,7 +132,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setThemeName,
         customTheme,
         updateCustomTheme,
-        applyCustomTheme
+        applyCustomTheme,
+        darkMode,
+        toggleDarkMode,
+        setPrimaryColor
       }}
     >
       {children}

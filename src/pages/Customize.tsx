@@ -11,10 +11,12 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Customize = () => {
   const { toast } = useToast();
   const [progress, setProgress] = React.useState(33);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -40,10 +42,11 @@ const Customize = () => {
       </div>
 
       <Tabs defaultValue="components" className="w-full">
-        <TabsList className="grid grid-cols-3">
+        <TabsList className="grid grid-cols-4">
           <TabsTrigger value="components">คอมโพเนนต์</TabsTrigger>
           <TabsTrigger value="forms">ฟอร์ม</TabsTrigger>
           <TabsTrigger value="feedback">การแสดงผล</TabsTrigger>
+          <TabsTrigger value="theme">ธีม</TabsTrigger>
         </TabsList>
         
         <TabsContent value="components" className="space-y-6">
@@ -144,6 +147,54 @@ const Customize = () => {
                 </div>
                 <div className="bg-yellow-500/10 text-yellow-600 p-4 rounded-md">
                   <p>คำเตือน: การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="theme" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>ตัวอย่างการตั้งค่าธีม</CardTitle>
+              <CardDescription>ตัวอย่างการปรับแต่งธีมและโหมด</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="dark-mode-demo">โหมดกลางคืน</Label>
+                  <p className="text-sm text-muted-foreground">
+                    เปลี่ยนสีพื้นหลังเป็นโทนเข้มสำหรับการใช้งานในที่มืด
+                  </p>
+                </div>
+                <Switch
+                  id="dark-mode-demo"
+                  checked={darkMode}
+                  onCheckedChange={toggleDarkMode}
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-4">
+                <Label>ตัวอย่างการแสดงผลในธีมต่างๆ</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">ธีมปกติ</h3>
+                    <div className="flex space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-wangsammo-orange"></div>
+                      <div className="w-6 h-6 rounded-full bg-wangsammo-teal"></div>
+                      <div className="w-6 h-6 rounded-full bg-wangsammo-blue"></div>
+                    </div>
+                  </div>
+                  <div className="p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">ธีมมืออาชีพ</h3>
+                    <div className="flex space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-indigo-600"></div>
+                      <div className="w-6 h-6 rounded-full bg-gray-700"></div>
+                      <div className="w-6 h-6 rounded-full bg-emerald-500"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>

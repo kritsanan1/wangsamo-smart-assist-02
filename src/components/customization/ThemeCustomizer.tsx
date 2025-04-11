@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/contexts/ThemeContext";
+import { colorOptions } from "@/contexts/ThemeContext";
 import {
   Select,
   SelectContent,
@@ -10,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { 
   Card,
   CardContent,
@@ -24,7 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Settings, Check } from "lucide-react";
+import { Settings, Check, Moon, Sun, Palette } from "lucide-react";
 
 export const ThemeCustomizer = () => {
   const {
@@ -32,7 +33,10 @@ export const ThemeCustomizer = () => {
     setThemeName,
     customTheme,
     updateCustomTheme,
-    applyCustomTheme
+    applyCustomTheme,
+    darkMode,
+    toggleDarkMode,
+    setPrimaryColor,
   } = useTheme();
 
   const fontOptions = [
@@ -67,6 +71,22 @@ export const ThemeCustomizer = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Dark Mode Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Moon className="h-4 w-4" />
+                <Label htmlFor="dark-mode">โหมดกลางคืน</Label>
+              </div>
+              <Switch
+                id="dark-mode"
+                checked={darkMode}
+                onCheckedChange={toggleDarkMode}
+              />
+            </div>
+            
+            <Separator />
+
+            {/* Theme Selection */}
             <div className="space-y-2">
               <Label>ธีม</Label>
               <Select
@@ -86,6 +106,37 @@ export const ThemeCustomizer = () => {
                   )}
                 </SelectContent>
               </Select>
+            </div>
+
+            <Separator />
+
+            {/* Primary Color Selection */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Palette className="h-4 w-4" />
+                <Label>สีหลัก</Label>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {colorOptions.map((color) => (
+                  <Button
+                    key={color.value}
+                    type="button"
+                    variant="outline"
+                    className={`h-8 w-8 rounded-full bg-${color.value} p-0 ${
+                      customTheme.primaryColor === color.value 
+                        ? "ring-2 ring-primary ring-offset-2" 
+                        : ""
+                    }`}
+                    title={color.name}
+                    onClick={() => setPrimaryColor(color.value)}
+                    aria-label={`เลือกสี ${color.name}`}
+                  >
+                    {customTheme.primaryColor === color.value && (
+                      <Check className="h-4 w-4 text-white" />
+                    )}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             <Separator />

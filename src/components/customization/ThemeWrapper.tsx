@@ -8,7 +8,7 @@ interface ThemeWrapperProps {
 }
 
 export const ThemeWrapper: React.FC<ThemeWrapperProps> = ({ children }) => {
-  const { currentTheme } = useTheme();
+  const { currentTheme, darkMode } = useTheme();
 
   const applyThemeClasses = () => {
     // Create class names based on the current theme
