@@ -11,7 +11,17 @@ interface UserManagementPanelProps {
   initialUsers?: User[];
 }
 
-const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers = [] }) => {
+// Mock data for users
+const mockUsers: User[] = [
+  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'admin', created_at: '2023-01-01', last_login: '2023-04-01' },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'moderator', created_at: '2023-01-15', last_login: '2023-04-10' },
+  { id: 3, name: 'Alice Johnson', email: 'alice@example.com', role: 'user', created_at: '2023-02-01', last_login: '2023-04-05' },
+  { id: 4, name: 'Bob Brown', email: 'bob@example.com', role: 'user', created_at: '2023-02-15', last_login: '2023-03-20' },
+  { id: 5, name: 'Charlie Davis', email: 'charlie@example.com', role: 'moderator', created_at: '2023-03-01', last_login: '2023-04-12' },
+  { id: 6, name: 'Diana Evans', email: 'diana@example.com', role: 'user', created_at: '2023-03-15', last_login: '2023-04-08' },
+];
+
+const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers = mockUsers }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<'id' | 'name' | 'email'>('id');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -21,7 +31,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
   const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
 
-  // ฟังก์ชันสำหรับดึงข้อมูลผู้ใช้จาก Supabase
+  // Simulate fetching users with filtering, sorting, and pagination
   const fetchUsers = async ({
     search,
     role,
@@ -30,48 +40,52 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
     sortField,
     sortDirection
   }: UserFilters): Promise<UsersResponse> => {
-    // คำนวณช่วง (range) สำหรับการแบ่งหน้า (pagination)
-    const start = (page - 1) * perPage;
-    const end = start + perPage - 1;
-
-    // เริ่มต้นด้วยการสร้าง query ที่เลือกเฉพาะคอลัมน์ที่จำเป็น (ไม่ใช้ SELECT *)
-    let query = supabase
-      .from('users')
-      .select('id, name, email, role', { count: 'exact' });
-
-    // เพิ่มเงื่อนไขค้นหาถ้ามี search term
+    // For demonstration purposes, we'll use the mockUsers and apply filtering/sorting/pagination in memory
+    
+    // Apply search filter
+    let filteredUsers = [...mockUsers];
+    
     if (search) {
-      // ใช้ ilike ซึ่งจะใช้ index ถ้าเราสร้าง trigram index สำหรับคอลัมน์เหล่านี้
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`);
+      const searchLower = search.toLowerCase();
+      filteredUsers = filteredUsers.filter(user => 
+        user.name.toLowerCase().includes(searchLower) || 
+        user.email.toLowerCase().includes(searchLower)
+      );
     }
-
-    // กรองตาม role ถ้าระบุ
+    
+    // Apply role filter
     if (role) {
-      query = query.eq('role', role);
+      filteredUsers = filteredUsers.filter(user => user.role === role);
     }
-
-    // เรียงลำดับข้อมูล (ใช้ index เพื่อการเรียงลำดับที่มีประสิทธิภาพ)
-    query = query.order(sortField, { ascending: sortDirection === 'asc' });
-
-    // จำกัดผลลัพธ์ด้วย range สำหรับ pagination
-    query = query.range(start, end);
-
-    // ส่ง query ไปยัง Supabase
-    const { data, error, count } = await query;
-
-    // จัดการกับข้อผิดพลาด
-    if (error) {
-      console.error("Error fetching users:", error);
-      throw new Error(error.message);
-    }
-
+    
+    // Apply sorting
+    filteredUsers.sort((a, b) => {
+      const fieldA = a[sortField];
+      const fieldB = b[sortField];
+      
+      if (fieldA < fieldB) return sortDirection === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    // Get total count
+    const count = filteredUsers.length;
+    
+    // Apply pagination
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginatedUsers = filteredUsers.slice(start, Math.min(end, count));
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     return { 
-      users: data as User[],
-      count: count || 0
+      users: paginatedUsers,
+      count: count
     };
   };
 
-  // ใช้ React Query สำหรับการ fetch ข้อมูลและ caching
+  // Use React Query for data fetching and caching
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['users', searchQuery, page, perPage, sortField, sortDirection],
     queryFn: () => fetchUsers({
@@ -83,7 +97,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
     })
   });
 
-  // อัพเดต totalCount เมื่อข้อมูลเปลี่ยน
+  // Update totalCount when data changes
   useEffect(() => {
     if (data) {
       setTotalCount(data.count);
@@ -92,7 +106,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPage(1); // รีเซ็ตหน้าเมื่อมีการค้นหาใหม่
+    setPage(1); // Reset page when searching
   };
 
   const handleSort = (field: 'id' | 'name' | 'email') => {
@@ -102,7 +116,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
       setSortField(field);
       setSortDirection('asc');
     }
-    setPage(1); // รีเซ็ตหน้าเมื่อมีการเปลี่ยนการเรียงลำดับ
+    setPage(1); // Reset page when sorting changes
   };
 
   const handlePageChange = (newPage: number) => {
@@ -115,12 +129,11 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
 
   const handleSaveUser = async (updatedUser: User) => {
     try {
-      // ใช้ upsert ซึ่งจะ update ถ้ามี id ที่เท่ากัน หรือ insert ถ้าไม่มี
-      const { error } = await supabase
-        .from('users')
-        .upsert(updatedUser);
-      
-      if (error) throw error;
+      // Use mock data update for now
+      const userIndex = mockUsers.findIndex(u => u.id === updatedUser.id);
+      if (userIndex >= 0) {
+        mockUsers[userIndex] = updatedUser;
+      }
       
       toast({
         title: "บันทึกสำเร็จ",
@@ -129,7 +142,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
       });
       
       setSelectedUser(null);
-      refetch(); // ดึงข้อมูลใหม่หลังจากบันทึก
+      refetch(); // Refresh data
     } catch (error: any) {
       console.error("Error saving user:", error);
       toast({
@@ -146,15 +159,14 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
 
   const handleDeleteUser = async (userId: number) => {
     try {
-      const userToDelete = data?.users.find(user => user.id === userId);
+      // Use mock data deletion for now
+      const userToDelete = mockUsers.find(user => user.id === userId);
       if (!userToDelete) return;
       
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', userId);
-      
-      if (error) throw error;
+      const userIndex = mockUsers.findIndex(u => u.id === userId);
+      if (userIndex >= 0) {
+        mockUsers.splice(userIndex, 1);
+      }
       
       toast({
         title: "ลบผู้ใช้สำเร็จ",
@@ -162,7 +174,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
         variant: "default",
       });
 
-      refetch(); // ดึงข้อมูลใหม่หลังจากลบ
+      refetch(); // Refresh data
     } catch (error: any) {
       console.error("Error deleting user:", error);
       toast({
@@ -173,7 +185,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
     }
   };
 
-  // ใช้ข้อมูลจาก React Query หรือ initialUsers ถ้าเป็นโหมด fallback
+  // Use data from React Query or initialUsers for fallback
   const users = data?.users || initialUsers;
 
   return (

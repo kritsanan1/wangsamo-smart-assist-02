@@ -19,7 +19,8 @@ import {
   Trash2, 
   Shield, 
   User as UserIcon,
-  Loader2
+  Loader2,
+  MoreHorizontal
 } from 'lucide-react';
 import {
   Pagination,
@@ -28,6 +29,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis
 } from "@/components/ui/pagination";
 
 interface UserListProps {
@@ -99,7 +101,7 @@ const UserList: React.FC<UserListProps> = ({
       if (startPage > 2) {
         pages.push(
           <PaginationItem key="ellipsis-start">
-            <PaginationLink disabled>...</PaginationLink>
+            <PaginationEllipsis />
           </PaginationItem>
         );
       }
@@ -121,7 +123,7 @@ const UserList: React.FC<UserListProps> = ({
       if (endPage < totalPages - 1) {
         pages.push(
           <PaginationItem key="ellipsis-end">
-            <PaginationLink disabled>...</PaginationLink>
+            <PaginationEllipsis />
           </PaginationItem>
         );
       }
@@ -246,8 +248,8 @@ const UserList: React.FC<UserListProps> = ({
                 <PaginationItem>
                   <PaginationPrevious 
                     onClick={() => onPageChange(Math.max(1, currentPage - 1))} 
-                    disabled={currentPage === 1} 
                     aria-disabled={currentPage === 1}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
                 
@@ -256,8 +258,8 @@ const UserList: React.FC<UserListProps> = ({
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))} 
-                    disabled={currentPage === totalPages}
                     aria-disabled={currentPage === totalPages}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>
