@@ -4,8 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 import UserList from './UserList';
 import UserProfileEdit from './UserProfileEdit';
 import { User, SortDirection, UserFilters, UsersResponse } from '@/types/users';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
 
 interface UserManagementPanelProps {
   initialUsers?: User[];
@@ -29,6 +27,9 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Simulate fetching users with filtering, sorting, and pagination
@@ -41,68 +42,77 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
     sortDirection
   }: UserFilters): Promise<UsersResponse> => {
     // For demonstration purposes, we'll use the mockUsers and apply filtering/sorting/pagination in memory
-    
-    // Apply search filter
-    let filteredUsers = [...mockUsers];
-    
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredUsers = filteredUsers.filter(user => 
-        user.name.toLowerCase().includes(searchLower) || 
-        user.email.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    // Apply role filter
-    if (role) {
-      filteredUsers = filteredUsers.filter(user => user.role === role);
-    }
-    
-    // Apply sorting
-    filteredUsers.sort((a, b) => {
-      const fieldA = a[sortField];
-      const fieldB = b[sortField];
+    try {
+      setIsLoading(true);
       
-      if (fieldA < fieldB) return sortDirection === 'asc' ? -1 : 1;
-      if (fieldA > fieldB) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-    
-    // Get total count
-    const count = filteredUsers.length;
-    
-    // Apply pagination
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const paginatedUsers = filteredUsers.slice(start, Math.min(end, count));
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return { 
-      users: paginatedUsers,
-      count: count
-    };
+      // Apply search filter
+      let filteredUsers = [...mockUsers];
+      
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredUsers = filteredUsers.filter(user => 
+          user.name.toLowerCase().includes(searchLower) || 
+          user.email.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply role filter
+      if (role) {
+        filteredUsers = filteredUsers.filter(user => user.role === role);
+      }
+      
+      // Apply sorting
+      filteredUsers.sort((a, b) => {
+        const fieldA = a[sortField];
+        const fieldB = b[sortField];
+        
+        if (fieldA < fieldB) return sortDirection === 'asc' ? -1 : 1;
+        if (fieldA > fieldB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+      
+      // Get total count
+      const count = filteredUsers.length;
+      
+      // Apply pagination
+      const start = (page - 1) * perPage;
+      const end = start + perPage;
+      const paginatedUsers = filteredUsers.slice(start, Math.min(end, count));
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return { 
+        users: paginatedUsers,
+        count: count
+      };
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Use React Query for data fetching and caching
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['users', searchQuery, page, perPage, sortField, sortDirection],
-    queryFn: () => fetchUsers({
-      search: searchQuery,
-      page,
-      perPage,
-      sortField,
-      sortDirection
-    })
-  });
-
-  // Update totalCount when data changes
   useEffect(() => {
-    if (data) {
-      setTotalCount(data.count);
-    }
-  }, [data]);
+    const getUsers = async () => {
+      try {
+        const result = await fetchUsers({
+          search: searchQuery,
+          page,
+          perPage,
+          sortField,
+          sortDirection
+        });
+        setUsers(result.users);
+        setTotalCount(result.count);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้');
+      }
+    };
+    
+    getUsers();
+  }, [searchQuery, page, perPage, sortField, sortDirection]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -129,11 +139,20 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
 
   const handleSaveUser = async (updatedUser: User) => {
     try {
+      setIsLoading(true);
+      
       // Use mock data update for now
       const userIndex = mockUsers.findIndex(u => u.id === updatedUser.id);
       if (userIndex >= 0) {
         mockUsers[userIndex] = updatedUser;
       }
+      
+      // Update the current users list if the updated user is in view
+      setUsers(currentUsers => 
+        currentUsers.map(user => 
+          user.id === updatedUser.id ? updatedUser : user
+        )
+      );
       
       toast({
         title: "บันทึกสำเร็จ",
@@ -142,7 +161,6 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
       });
       
       setSelectedUser(null);
-      refetch(); // Refresh data
     } catch (error: any) {
       console.error("Error saving user:", error);
       toast({
@@ -150,6 +168,8 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
         description: `ไม่สามารถบันทึกข้อมูลผู้ใช้ได้: ${error.message}`,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -159,6 +179,8 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
 
   const handleDeleteUser = async (userId: number) => {
     try {
+      setIsLoading(true);
+      
       // Use mock data deletion for now
       const userToDelete = mockUsers.find(user => user.id === userId);
       if (!userToDelete) return;
@@ -168,13 +190,16 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
         mockUsers.splice(userIndex, 1);
       }
       
+      // Update the current users list
+      setUsers(currentUsers => 
+        currentUsers.filter(user => user.id !== userId)
+      );
+      
       toast({
         title: "ลบผู้ใช้สำเร็จ",
         description: `ลบข้อมูลผู้ใช้ ${userToDelete.name} เรียบร้อยแล้ว`,
         variant: "default",
       });
-
-      refetch(); // Refresh data
     } catch (error: any) {
       console.error("Error deleting user:", error);
       toast({
@@ -182,11 +207,10 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
         description: `ไม่สามารถลบข้อมูลผู้ใช้ได้: ${error.message}`,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // Use data from React Query or initialUsers for fallback
-  const users = data?.users || initialUsers;
 
   return (
     <div className="space-y-6">
@@ -207,7 +231,7 @@ const UserManagementPanel: React.FC<UserManagementPanelProps> = ({ initialUsers 
           onEdit={handleEditUser}
           onDelete={handleDeleteUser}
           isLoading={isLoading}
-          error={error ? String(error) : undefined}
+          error={error || undefined}
           currentPage={page}
           totalPages={Math.ceil(totalCount / perPage)}
           onPageChange={handlePageChange}

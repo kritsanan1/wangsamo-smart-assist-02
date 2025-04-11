@@ -248,8 +248,8 @@ const UserList: React.FC<UserListProps> = ({
                 <PaginationItem>
                   <PaginationPrevious 
                     onClick={() => onPageChange(Math.max(1, currentPage - 1))} 
-                    aria-disabled={currentPage === 1}
                     className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                    aria-disabled={currentPage === 1}
                   />
                 </PaginationItem>
                 
@@ -258,8 +258,8 @@ const UserList: React.FC<UserListProps> = ({
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))} 
-                    aria-disabled={currentPage === totalPages}
                     className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                    aria-disabled={currentPage === totalPages}
                   />
                 </PaginationItem>
               </PaginationContent>
