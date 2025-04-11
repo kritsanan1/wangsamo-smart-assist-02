@@ -18,8 +18,17 @@ import {
   Edit, 
   Trash2, 
   Shield, 
-  User as UserIcon 
+  User as UserIcon,
+  Loader2
 } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface UserListProps {
   users: User[];
@@ -30,6 +39,11 @@ interface UserListProps {
   onSort: (field: 'id' | 'name' | 'email') => void;
   onEdit: (user: User) => void;
   onDelete: (userId: number) => void;
+  isLoading?: boolean;
+  error?: string;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const UserList: React.FC<UserListProps> = ({
@@ -40,7 +54,12 @@ const UserList: React.FC<UserListProps> = ({
   onSearch,
   onSort,
   onEdit,
-  onDelete
+  onDelete,
+  isLoading = false,
+  error,
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
   const getSortIcon = (field: 'id' | 'name' | 'email') => {
     if (sortField !== field) return null;
@@ -62,6 +81,62 @@ const UserList: React.FC<UserListProps> = ({
     }
   };
 
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxPageDisplay = 5;
+    const startPage = Math.max(1, currentPage - Math.floor(maxPageDisplay / 2));
+    const endPage = Math.min(totalPages, startPage + maxPageDisplay - 1);
+
+    // Add first page and ellipsis if necessary
+    if (startPage > 1) {
+      pages.push(
+        <PaginationItem key="first">
+          <PaginationLink onClick={() => onPageChange(1)} isActive={currentPage === 1}>
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) {
+        pages.push(
+          <PaginationItem key="ellipsis-start">
+            <PaginationLink disabled>...</PaginationLink>
+          </PaginationItem>
+        );
+      }
+    }
+
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <PaginationItem key={i}>
+          <PaginationLink onClick={() => onPageChange(i)} isActive={currentPage === i}>
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Add last page and ellipsis if necessary
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <PaginationItem key="ellipsis-end">
+            <PaginationLink disabled>...</PaginationLink>
+          </PaginationItem>
+        );
+      }
+      pages.push(
+        <PaginationItem key="last">
+          <PaginationLink onClick={() => onPageChange(totalPages)} isActive={currentPage === totalPages}>
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return pages;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -77,84 +152,118 @@ const UserList: React.FC<UserListProps> = ({
         </div>
       </div>
       
-      {users.length === 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-10">
+          <Loader2 className="h-12 w-12 text-muted-foreground animate-spin" />
+          <p className="mt-2 text-muted-foreground">กำลังโหลดข้อมูล...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-10 text-red-500">
+          <p>เกิดข้อผิดพลาด: {error}</p>
+        </div>
+      ) : users.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10">
           <UserIcon className="h-12 w-12 text-muted-foreground" />
           <p className="mt-2 text-muted-foreground">ไม่พบผู้ใช้งาน</p>
         </div>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead 
-                  className="w-20 cursor-pointer"
-                  onClick={() => onSort('id')}
-                >
-                  <div className="flex items-center">
-                    ID {getSortIcon('id')}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer"
-                  onClick={() => onSort('name')}
-                >
-                  <div className="flex items-center">
-                    ชื่อ {getSortIcon('name')}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer"
-                  onClick={() => onSort('email')}
-                >
-                  <div className="flex items-center">
-                    อีเมล {getSortIcon('email')}
-                  </div>
-                </TableHead>
-                <TableHead>บทบาท</TableHead>
-                <TableHead className="text-right">การดำเนินการ</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      {getRoleIcon(user.role)}
-                      <span className="capitalize">
-                        {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 
-                         user.role === 'moderator' ? 'ผู้ดูแล' : 'ผู้ใช้'}
-                      </span>
+        <>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead 
+                    className="w-20 cursor-pointer"
+                    onClick={() => onSort('id')}
+                  >
+                    <div className="flex items-center">
+                      ID {getSortIcon('id')}
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEdit(user)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">แก้ไข</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDelete(user.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                        <span className="sr-only">ลบ</span>
-                      </Button>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => onSort('name')}
+                  >
+                    <div className="flex items-center">
+                      ชื่อ {getSortIcon('name')}
                     </div>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer"
+                    onClick={() => onSort('email')}
+                  >
+                    <div className="flex items-center">
+                      อีเมล {getSortIcon('email')}
+                    </div>
+                  </TableHead>
+                  <TableHead>บทบาท</TableHead>
+                  <TableHead className="text-right">การดำเนินการ</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        {getRoleIcon(user.role)}
+                        <span className="capitalize">
+                          {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 
+                          user.role === 'moderator' ? 'ผู้ดูแล' : 'ผู้ใช้'}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEdit(user)}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">แก้ไข</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDelete(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <span className="sr-only">ลบ</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {totalPages > 1 && (
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => onPageChange(Math.max(1, currentPage - 1))} 
+                    disabled={currentPage === 1} 
+                    aria-disabled={currentPage === 1}
+                  />
+                </PaginationItem>
+                
+                {renderPageNumbers()}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))} 
+                    disabled={currentPage === totalPages}
+                    aria-disabled={currentPage === totalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
       )}
     </div>
   );
